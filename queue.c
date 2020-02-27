@@ -24,8 +24,18 @@ queue_t *q_new()
 /* Free all storage used by queue */
 void q_free(queue_t *q)
 {
-    /* TODO: How about freeing the list elements and the strings? */
+    /* DONE: How about freeing the list elements and the strings? */
     /* Free queue structure */
+    list_ele_t *prev = NULL;
+    list_ele_t *elem = q->head;
+    while (elem != NULL) {
+        if (elem->value != NULL) {
+            free(elem->value);
+        }
+        prev = elem;
+        elem = elem->next;
+        free(prev);
+    }
     free(q);
 }
 
@@ -230,8 +240,7 @@ list_ele_t *merge_sort(list_ele_t *start, int L, int R)
 }
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    /* DONE: You need to write the code for this function */
     if (q == NULL || q->size == 0) {
         return;
     }
