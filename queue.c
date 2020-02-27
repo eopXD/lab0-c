@@ -13,8 +13,11 @@
 queue_t *q_new()
 {
     queue_t *q = malloc(sizeof(queue_t));
-    /* TODO: What if malloc returned NULL? */
-    q->head = NULL;
+    /* DONE: Handle insufficient memory to provide */
+    if (q == NULL) {
+        return NULL;
+    }
+    q->head = q->tail = NULL;
     return q;
 }
 
@@ -36,12 +39,27 @@ void q_free(queue_t *q)
 bool q_insert_head(queue_t *q, char *s)
 {
     list_ele_t *newh;
-    /* TODO: What should you do if the q is NULL? */
+    /* DONE: What should you do if the q is NULL? */
     newh = malloc(sizeof(list_ele_t));
-    /* Don't forget to allocate space for the string and copy it */
-    /* What if either call to malloc returns NULL? */
-    newh->next = q->head;
-    q->head = newh;
+    if (q == NULL || newh == NULL) {
+        return false;
+    }
+    if (q->size == 0) {
+        q->head = q->tail = newh;
+        newh->next = NULL;
+    } else {
+        newh->next = q->head;
+        q->head = newh;
+    }
+    /* DONE: Allocate space for the string and copy it */
+    newh->value = malloc(sizeof(char) * (strlen(s) + 1));
+    if (newh->value == NULL) {
+        free(newh); /* Beware leak! */
+        return false;
+    }
+    memcpy(newh->value, s, strlen(s));
+    newh->value[strlen(s)] = '\0';
+
     return true;
 }
 
@@ -57,6 +75,7 @@ bool q_insert_tail(queue_t *q, char *s)
     /* TODO: You need to write the complete code for this function */
     /* Remember: It should operate in O(1) time */
     /* TODO: Remove the above comment when you are about to implement. */
+
     return false;
 }
 
