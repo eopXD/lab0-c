@@ -27,6 +27,9 @@ void q_free(queue_t *q)
 {
     /* DONE: How about freeing the list elements and the strings? */
     /* Free queue structure */
+    if (q == NULL) {
+        return;
+    }
     list_ele_t *prev = NULL;
     list_ele_t *elem = q->head;
     while (elem != NULL) {
@@ -49,18 +52,14 @@ void q_free(queue_t *q)
  */
 bool q_insert_head(queue_t *q, char *s)
 {
+    if (q == NULL) {
+        return false;
+    }
     list_ele_t *newh;
     /* DONE: What should you do if the q is NULL? */
     newh = malloc(sizeof(list_ele_t));
-    if (q == NULL || newh == NULL) {
+    if (newh == NULL) {
         return false;
-    }
-    if (q->size == 0) {
-        q->head = q->tail = newh;
-        newh->next = NULL;
-    } else {
-        newh->next = q->head;
-        q->head = newh;
     }
     /* DONE: Allocate space for the string and copy it */
     newh->value = malloc(sizeof(char) * (strlen(s) + 1));
@@ -70,6 +69,14 @@ bool q_insert_head(queue_t *q, char *s)
     }
     memcpy(newh->value, s, strlen(s));
     newh->value[strlen(s)] = '\0';
+
+    if (q->size == 0) {
+        q->head = q->tail = newh;
+        newh->next = NULL;
+    } else {
+        newh->next = q->head;
+        q->head = newh;
+    }
     ++q->size;
 
     return true;
@@ -86,18 +93,14 @@ bool q_insert_tail(queue_t *q, char *s)
 {
     /* DONE: You need to write the complete code for this function */
     /* Remember: It should operate in O(1) time */
-    list_ele_t *newt;
-    newt = malloc(sizeof(list_ele_t));
-    if (q == NULL || newt == NULL) {
+    if (q == NULL) {
         return false;
     }
-    if (q->size == 0) {
-        q->head = q->tail = newt;
-    } else {
-        q->tail->next = newt;
-        q->tail = newt;
+    list_ele_t *newt;
+    newt = malloc(sizeof(list_ele_t));
+    if (newt == NULL) {
+        return false;
     }
-    newt->next = NULL;
     /* DONE: Allocate space for the string and copy it */
     newt->value = malloc(sizeof(char) * (strlen(s) + 1));
     if (newt->value == NULL) {
@@ -106,6 +109,13 @@ bool q_insert_tail(queue_t *q, char *s)
     }
     memcpy(newt->value, s, strlen(s));
     newt->value[strlen(s)] = '\0';
+    newt->next = NULL;
+    if (q->size == 0) {
+        q->head = q->tail = newt;
+    } else {
+        q->tail->next = newt;
+        q->tail = newt;
+    }
     ++q->size;
 
     return true;
@@ -152,6 +162,9 @@ int q_size(queue_t *q)
 {
     /* DONE: You need to write the code for this function */
     /* Remember: It should operate in O(1) time */
+    if (q == NULL) {
+        return 0;
+    }
     return (q->size);
 }
 
