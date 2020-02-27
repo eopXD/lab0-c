@@ -115,7 +115,8 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
         return false;
     }
     if (sp != NULL) {
-        int len = min(buf_size - 1, strlen(q->head->value));
+        int len = bufsize - 1 < strlen(q->head->value) ? bufsize - 1
+                                                       : strlen(q->head->value);
         for (int i = 0; i < len; ++i) {
             sp[i] = q->head->value[i];
         }
@@ -157,14 +158,17 @@ void q_reverse(queue_t *q)
     list_ele_t *now = q->head;
     list_ele_t *next = now->next;
     while (next != NULL) {
-        list_ele_t *nextnext = b->next;
+        list_ele_t *nextnext = next->next;
         now->next = prev;
         next->next = now;
         prev = now;
         now = next;
         next = nextnext;
     }
-    swap(q->head, q->tail);
+    /* swap */
+    prev = q->head;
+    q->head = q->tail;
+    q->tail = prev;
 }
 
 /*
