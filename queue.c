@@ -72,9 +72,28 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
-    /* TODO: You need to write the complete code for this function */
+    /* DONE: You need to write the complete code for this function */
     /* Remember: It should operate in O(1) time */
-    /* TODO: Remove the above comment when you are about to implement. */
+    list_ele_t *newt;
+    newt = malloc(sizeof(list_ele_t));
+    if (q == NULL || newt == NULL) {
+        return false;
+    }
+    if (q->size == 0) {
+        q->head = q->tail = newt;
+    } else {
+        q->tail->next = newt;
+        q->tail = newt;
+    }
+    newt->next = NULL;
+    /* DONE: Allocate space for the string and copy it */
+    newt->value = malloc(sizeof(char) * (strlen(s) + 1));
+    if (newt->value == NULL) {
+        free(newt); /* Beware leak! */
+        return false;
+    }
+    memcpy(newt->value, s, strlen(s));
+    newt->value[strlen(s)] = '\0';
 
     return false;
 }
@@ -89,9 +108,21 @@ bool q_insert_tail(queue_t *q, char *s)
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    /* TODO: You need to fix up this code. */
-    /* TODO: Remove the above comment when you are about to implement. */
+    /* DONE: You need to fix up this code. */
+    if (q == NULL || q->size == 0) {
+        return false;
+    }
+    if (sp != NULL) {
+        int len = min(buf_size - 1, strlen(q->head->value));
+        for (int i = 0; i < len; ++i) {
+            sp[i] = q->head->value[i];
+        }
+        sp[len] = '\0';
+    }
+    list_ele_t *del = q->head;
     q->head = q->head->next;
+    free(del);
+
     return true;
 }
 
