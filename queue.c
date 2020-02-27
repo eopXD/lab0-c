@@ -176,8 +176,70 @@ void q_reverse(queue_t *q)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
+
+/* Comparison function */
+bool cmp(char *a, char *b) /* Return if a <= b */
+{
+    int len = strlen(a) < strlen(b) ? strlen(a) : strlen(b);
+    for (int i = 0; i < len; ++i) {
+        if (a[i] < b[i]) {
+            return true;
+        }
+        if (a[i] > b[i]) {
+            return false;
+        }
+    }
+    return strlen(a) <= strlen(b);
+}
+list_ele_t *merge_sort(list_ele_t *start, int L, int R)
+{
+    if (R <= L + 1) {
+        return start;
+    }
+    list_ele_t *left = start;
+    list_ele_t *prev = left, *right = left->next;
+    int M = (L + R) / 2;
+    for (int i = L; i < M - 1; ++i) {
+        prev = right;
+        right = right->next;
+    }
+    prev->next = NULL;
+
+    left = merge_sort(left, L, M);
+    right = merge_sort(right, M, R);
+    for (list_ele_t *merge = NULL; left || right;) {
+        if (!right || (left && cmp(left->value, right->value))) {
+            if (!merge) {
+                start = merge = left;  // LL1;
+            } else {
+                merge->next = left;  // LL2;
+                merge = merge->next;
+            }
+            left = left->next;  // LL3;
+        } else {
+            if (!merge) {
+                start = merge = right;  // LL4;
+            } else {
+                merge->next = right;  // LL5;
+                merge = merge->next;
+            }
+            right = right->next;  // LL6;
+        }
+    }
+    return start;
+}
 void q_sort(queue_t *q)
 {
     /* TODO: You need to write the code for this function */
     /* TODO: Remove the above comment when you are about to implement. */
+    if (q == NULL || q->size == 0) {
+        return;
+    }
+    q->head = merge_sort(q->head, 0, q->size);
+    /* Determine tail after sorting */
+    list_ele_t *elem = q->head;
+    while (elem != NULL) {
+        q->tail = elem;
+        elem = elem->next;
+    }
 }
