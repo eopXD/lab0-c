@@ -18,6 +18,7 @@ queue_t *q_new()
         return NULL;
     }
     q->head = q->tail = NULL;
+    q->size = 0;
     return q;
 }
 
@@ -134,6 +135,9 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     }
     list_ele_t *del = q->head;
     q->head = q->head->next;
+    if (del->value != NULL) {
+        free(del->value);
+    }
     free(del);
     q->size--;
 
