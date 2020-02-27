@@ -108,7 +108,7 @@ bool q_insert_tail(queue_t *q, char *s)
     newt->value[strlen(s)] = '\0';
     ++q->size;
 
-    return false;
+    return true;
 }
 
 /*
