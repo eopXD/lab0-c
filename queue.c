@@ -44,6 +44,26 @@ void q_free(queue_t *q)
 }
 
 /*
+ * Create new element given length of value
+ * Return pointer to element.
+ * Return NULL if could not allocate space.
+ */
+list_ele_t *new_element(int len)
+{
+    list_ele_t *elem;
+    elem = malloc(sizeof(list_ele_t));
+    if (elem == NULL) {
+        return NULL;
+    }
+    elem->value = malloc(sizeof(char) * len);
+    if (elem->value == NULL) {
+        free(elem);
+        return NULL;
+    }
+    return elem;
+}
+
+/*
  * Attempt to insert element at head of queue.
  * Return true if successful.
  * Return false if q is NULL or could not allocate space.
@@ -52,19 +72,13 @@ void q_free(queue_t *q)
  */
 bool q_insert_head(queue_t *q, char *s)
 {
+    /* DONE: What should you do if the q is NULL? */
     if (q == NULL) {
         return false;
     }
-    list_ele_t *newh;
-    /* DONE: What should you do if the q is NULL? */
-    newh = malloc(sizeof(list_ele_t));
-    if (newh == NULL) {
-        return false;
-    }
     /* DONE: Allocate space for the string and copy it */
-    newh->value = malloc(sizeof(char) * (strlen(s) + 1));
-    if (newh->value == NULL) {
-        free(newh); /* Beware leak! */
+    list_ele_t *newh = new_element(strlen(s) + 1);
+    if (newh == NULL) {
         return false;
     }
     memcpy(newh->value, s, strlen(s));
@@ -96,26 +110,20 @@ bool q_insert_tail(queue_t *q, char *s)
     if (q == NULL) {
         return false;
     }
-    list_ele_t *newt;
-    newt = malloc(sizeof(list_ele_t));
+    list_ele_t *newt = new_element(strlen(s) + 1);
     if (newt == NULL) {
-        return false;
-    }
-    /* DONE: Allocate space for the string and copy it */
-    newt->value = malloc(sizeof(char) * (strlen(s) + 1));
-    if (newt->value == NULL) {
-        free(newt); /* Beware leak! */
         return false;
     }
     memcpy(newt->value, s, strlen(s));
     newt->value[strlen(s)] = '\0';
-    newt->next = NULL;
+
     if (q->size == 0) {
         q->head = q->tail = newt;
     } else {
         q->tail->next = newt;
         q->tail = newt;
     }
+    newt->next = NULL;
     ++q->size;
 
     return true;
