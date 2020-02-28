@@ -227,7 +227,7 @@ void q_reverse(queue_t *q)
     }
     return strlen(a) <= strlen(b);
 }*/
-int natural_sort(char *a, char *b) /* from sourcefrog */
+int natural_cmp(char *a, char *b) /* from sourcefrog */
 {
     return strnatcmp(a, b);
 }
