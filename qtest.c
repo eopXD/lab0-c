@@ -35,6 +35,7 @@
 #include "report.h"
 
 /* Settable parameters */
+#include "strnatcmp.h"
 
 /*
  * How large is a queue before it's considered big.
@@ -73,6 +74,7 @@ static bool do_remove_head_quiet(int argc, char *argv[]);
 static bool do_reverse(int argc, char *argv[]);
 static bool do_size(int argc, char *argv[]);
 static bool do_sort(int argc, char *argv[]);
+static bool do_nat_sort(int argc, char *argv[]);
 static bool do_show(int argc, char *argv[]);
 
 static bool do_hello(int argc, char *argv[]);
@@ -97,6 +99,7 @@ static void console_init()
         "                | Remove from head of queue without reporting value.");
     add_cmd("reverse", do_reverse, "                | Reverse queue");
     add_cmd("sort", do_sort, "                | Sort queue in ascending order");
+    add_cmd("nat_sort", do_nat_sort, "        | Sort queue naturally");
     add_cmd("size", do_size,
             " [n]            | Compute queue size n times (default: n == 1)");
     add_cmd("show", do_show, "                | Show queue contents");
@@ -560,7 +563,7 @@ bool do_sort(int argc, char *argv[])
 
     set_noallocate_mode(true);
     if (exception_setup(true))
-        q_sort(q);
+        q_sort(q, 0);
     exception_cancel();
     set_noallocate_mode(false);
 
@@ -571,6 +574,42 @@ bool do_sort(int argc, char *argv[])
             /* FIXME: add an option to specify sorting order */
             if (strcasecmp(e->value, e->next->value) > 0) {
                 report(1, "ERROR: Not sorted in ascending order");
+                ok = false;
+                break;
+            }
+        }
+    }
+
+    show_queue(3);
+    return ok && !error_check();
+}
+bool do_nat_sort(int argc, char *argv[])
+{
+    if (argc != 1) {
+        report(1, "%s takes no arguments", argv[0]);
+        return false;
+    }
+
+    if (!q)
+        report(3, "Warning: Calling sort on null queue");
+    error_check();
+
+    int cnt = q_size(q);
+    if (cnt < 2)
+        report(3, "Warning: Calling sort on single node");
+    error_check();
+
+    set_noallocate_mode(true);
+    if (exception_setup(true))
+        q_sort(q, 1);
+    exception_cancel();
+    set_noallocate_mode(false);
+
+    bool ok = true;
+    if (q) {
+        for (list_ele_t *e = q->head; e && --cnt; e = e->next) {
+            if (strnatcmp(e->value, e->next->value) > 0) {
+                report(1, "ERROR: Not sorted in natural order");
                 ok = false;
                 break;
             }
