@@ -214,7 +214,7 @@ void q_reverse(queue_t *q)
  */
 
 /* Comparison function */
-/*int normal_cmp(char *a, char *b)
+int normal_cmp(char *a, char *b)
 {
     int len = strlen(a) < strlen(b) ? strlen(a) : strlen(b);
     for (int i = 0; i < len; ++i) {
@@ -226,12 +226,13 @@ void q_reverse(queue_t *q)
         }
     }
     return strlen(a) <= strlen(b);
-}*/
+}
 int natural_cmp(char *a, char *b) /* from sourcefrog */
 {
-    return strnatcmp(a, b);
+    int ret = strnatcmp(a, b);
+    return ret;
 }
-list_ele_t *merge_sort(list_ele_t *start, int L, int R)
+list_ele_t *merge_sort(list_ele_t *start, int L, int R, int cmp)
 {
     if (R <= L + 1) {
         return start;
@@ -245,10 +246,16 @@ list_ele_t *merge_sort(list_ele_t *start, int L, int R)
     }
     prev->next = NULL;
 
-    left = merge_sort(left, L, M);
-    right = merge_sort(right, M, R);
+    left = merge_sort(left, L, M, cmp);
+    right = merge_sort(right, M, R, cmp);
+    int (*compare)(char *, char *);
+    if (cmp == 0) {
+        compare = normal_cmp;
+    } else {
+        compare = natural_cmp;
+    }
     for (list_ele_t *merge = NULL; left || right;) {
-        if (!right || (left && natural_cmp(left->value, right->value))) {
+        if (!right || (left && compare(left->value, right->value))) {
             if (!merge) {
                 start = merge = left;  // LL1;
             } else {
@@ -268,13 +275,13 @@ list_ele_t *merge_sort(list_ele_t *start, int L, int R)
     }
     return start;
 }
-void q_sort(queue_t *q)
+void q_sort(queue_t *q, int cmp)
 {
     /* DONE: You need to write the code for this function */
     if (q == NULL || q->size == 0) {
         return;
     }
-    q->head = merge_sort(q->head, 0, q->size);
+    q->head = merge_sort(q->head, 0, q->size, cmp);
     /* Determine tail after sorting */
     list_ele_t *elem = q->head;
     while (elem != NULL) {

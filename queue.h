@@ -93,7 +93,9 @@ void q_reverse(queue_t *q);
  * Sort elements of queue in ascending order
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
+ * cmp = 0, do normal sort
+ * cmp = 1, do natural sort
  */
-void q_sort(queue_t *q);
+void q_sort(queue_t *q, int cmp);
 
 #endif /* LAB0_QUEUE_H */
