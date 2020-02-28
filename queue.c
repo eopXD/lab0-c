@@ -213,7 +213,7 @@ void q_reverse(queue_t *q)
  */
 
 /* Comparison function */
-bool cmp(char *a, char *b) /* Return if a <= b */
+bool normal_cmp(char *a, char *b) /* Return if a <= b */
 {
     int len = strlen(a) < strlen(b) ? strlen(a) : strlen(b);
     for (int i = 0; i < len; ++i) {
@@ -243,7 +243,7 @@ list_ele_t *merge_sort(list_ele_t *start, int L, int R)
     left = merge_sort(left, L, M);
     right = merge_sort(right, M, R);
     for (list_ele_t *merge = NULL; left || right;) {
-        if (!right || (left && cmp(left->value, right->value))) {
+        if (!right || (left && normal_cmp(left->value, right->value))) {
             if (!merge) {
                 start = merge = left;  // LL1;
             } else {
