@@ -230,7 +230,7 @@ int normal_cmp(char *a, char *b)
 int natural_cmp(char *a, char *b) /* from sourcefrog */
 {
     int ret = strnatcmp(a, b);
-    return ret;
+    return ret < 0;
 }
 list_ele_t *merge_sort(list_ele_t *start, int L, int R, int cmp)
 {
