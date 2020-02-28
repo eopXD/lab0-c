@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "harness.h"
+#include "strnatcmp.h"
 
 /*
  * Create empty queue.
@@ -213,7 +214,7 @@ void q_reverse(queue_t *q)
  */
 
 /* Comparison function */
-bool normal_cmp(char *a, char *b) /* Return if a <= b */
+/*int normal_cmp(char *a, char *b)
 {
     int len = strlen(a) < strlen(b) ? strlen(a) : strlen(b);
     for (int i = 0; i < len; ++i) {
@@ -225,6 +226,10 @@ bool normal_cmp(char *a, char *b) /* Return if a <= b */
         }
     }
     return strlen(a) <= strlen(b);
+}*/
+int natural_sort(char *a, char *b) /* from sourcefrog */
+{
+    return strnatcmp(a, b);
 }
 list_ele_t *merge_sort(list_ele_t *start, int L, int R)
 {
@@ -243,7 +248,7 @@ list_ele_t *merge_sort(list_ele_t *start, int L, int R)
     left = merge_sort(left, L, M);
     right = merge_sort(right, M, R);
     for (list_ele_t *merge = NULL; left || right;) {
-        if (!right || (left && normal_cmp(left->value, right->value))) {
+        if (!right || (left && natural_cmp(left->value, right->value))) {
             if (!merge) {
                 start = merge = left;  // LL1;
             } else {
