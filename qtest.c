@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "dudect/fixture.h"
+#include "linenoise.h"
 
 /* Our program needs to use regular malloc/free */
 #define INTERNAL 1
@@ -799,6 +800,18 @@ int main(int argc, char *argv[])
             printf("Unknown option '%c'\n", c);
             usage(argv[0]);
             break;
+        }
+    }
+
+    while (argc > 1) {
+        argc--;
+        argv++;
+        if (!strcmp(*argv, "--multiline")) {
+            linenoiseSetMultiLine(1);
+            printf("Multi-line mode enabled.\n");
+        } else if (!strcmp(*argv, "--keycodes")) {
+            linenoisePrintKeyCodes();
+            exit(0);
         }
     }
 

@@ -1,6 +1,8 @@
+.gitignore
 qtest
 *.o
 *.o.d
 *.dSYM
 .vscode
 .devcontainer
+history.txt

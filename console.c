@@ -1,5 +1,7 @@
 /* Implementation of simple command-line interface */
 
+#include "console.h"
+
 #include <ctype.h>
 #include <fcntl.h>
 #include <inttypes.h>
@@ -13,7 +15,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "console.h"
+#include "linenoise.h"
 #include "report.h"
 
 /* Some global values */
@@ -160,6 +162,7 @@ static char **parse_args(char *line, int *argcp)
     size_t len = strlen(line);
     /* First copy into buffer with each substring null-terminated */
     char *buf = malloc_or_fail(len + 1, "parse_args");
+    memset(buf, 0, len + 1); /* initialize to zero*/
     char *src = line;
     char *dst = buf;
     bool skipping = true;
@@ -619,14 +622,129 @@ bool finish_cmd()
     return ok && err_cnt == 0;
 }
 
+void completion(const char *buf, linenoiseCompletions *lc)
+{
+    if (buf[0] == 'h') {
+        linenoiseAddCompletion(lc, "help");
+        linenoiseAddCompletion(lc, "hello");
+    }
+    if (buf[0] == 'f') {
+        linenoiseAddCompletion(lc, "free");
+    }
+    if (buf[0] == 'i') {
+        linenoiseAddCompletion(lc, "it");
+        linenoiseAddCompletion(lc, "ih");
+    }
+    if (buf[0] == 'n') {
+        linenoiseAddCompletion(lc, "nat_sort");
+        linenoiseAddCompletion(lc, "new");
+    }
+    if (buf[0] == 'o') {
+        linenoiseAddCompletion(lc, "option");
+    }
+    if (buf[0] == 'q') {
+        linenoiseAddCompletion(lc, "quit");
+    }
+    if (buf[0] == 'r') {
+        linenoiseAddCompletion(lc, "reverse");
+        linenoiseAddCompletion(lc, "rh");
+        linenoiseAddCompletion(lc, "rhq");
+    }
+    if (buf[0] == 's') {
+        linenoiseAddCompletion(lc, "show");
+        linenoiseAddCompletion(lc, "size");
+        linenoiseAddCompletion(lc, "sort");
+    }
+    if (buf[0] == 't') {
+        linenoiseAddCompletion(lc, "time");
+    }
+}
+
+char *hints(const char *buf, int *color, int *bold)
+{
+    /*    if (!strcasecmp(buf,"hello")) {
+            *color = 35;
+            *bold = 0;
+            return " World";
+        }*/
+    if (!strcasecmp(buf, "it") || !strcasecmp(buf, "ih")) {
+        *color = 35;
+        *bold = 0;
+        return " str [n]";
+    }
+    if (!strcasecmp(buf, "log")) {
+        *color = 35;
+        *bold = 0;
+        return " file";
+    }
+    if (!strcasecmp(buf, "rh")) {
+        *color = 35;
+        *bold = 0;
+        return " str";
+    }
+    if (!strcasecmp(buf, "rh")) {
+        *color = 35;
+        *bold = 0;
+        return " str [n]";
+    }
+    if (!strcasecmp(buf, "size")) {
+        *color = 35;
+        *bold = 0;
+        return " [n]";
+    }
+    if (!strcasecmp(buf, "rh")) {
+        *color = 35;
+        *bold = 0;
+        return " str [n]";
+    }
+    if (!strcasecmp(buf, "source")) {
+        *color = 35;
+        *bold = 0;
+        return " file";
+    }
+    if (!strcasecmp(buf, "time")) {
+        *color = 35;
+        *bold = 0;
+        return " cmd arg ...";
+    }
+    return NULL;
+}
+
 bool run_console(char *infile_name)
 {
     if (!push_file(infile_name)) {
         report(1, "ERROR: Could not open source file '%s'", infile_name);
         return false;
     }
+    if (buf_stack->fd != STDIN_FILENO) {
+        while (!cmd_done())
+            cmd_select(0, NULL, NULL, NULL, NULL);
+        return err_cnt == 0;
+    }
 
-    while (!cmd_done())
-        cmd_select(0, NULL, NULL, NULL, NULL);
+    /* Set the completion callback. This will be called every time the
+     * user uses the <tab> key. */
+    linenoiseSetCompletionCallback(completion);
+    linenoiseSetHintsCallback(hints);
+
+    /* Load history from file. The history file is just a plain text file
+     * where entries are separated by newlines. */
+    linenoiseHistoryLoad("history.txt"); /* Load the history at startup */
+
+    char *line;
+    while ((line = linenoise(prompt))) {
+        if (line[0] != '\0' && line[0] != '/') {
+            interpret_cmd(line);
+            linenoiseHistoryAdd(line);           /* Add to the history. */
+            linenoiseHistorySave("history.txt"); /* Save the history on disk. */
+        } else if (!strncmp(line, "/historylen", 11)) {
+            /* The "/historylen" command will change the history len. */
+            int len = atoi(line + 11);
+            linenoiseHistorySetMaxLen(len);
+        } else if (line[0] == '/') {
+            printf("Unreconized command: %s\n", line);
+        }
+        free(line);
+    }
     return err_cnt == 0;
 }
