@@ -454,7 +454,6 @@ static bool push_file(char *fname)
     rnew->bufptr = rnew->buf;
     rnew->prev = buf_stack;
     buf_stack = rnew;
-
     return true;
 }
 
@@ -743,6 +742,11 @@ bool run_console(char *infile_name)
             linenoiseHistorySetMaxLen(len);
         } else if (line[0] == '/') {
             printf("Unreconized command: %s\n", line);
+        }
+        if (buf_stack->fd != STDIN_FILENO) {
+            while (!cmd_done())
+                cmd_select(0, NULL, NULL, NULL, NULL);
+            buf_stack->fd = STDIN_FILENO;
         }
         free(line);
     }
