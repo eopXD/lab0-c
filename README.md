@@ -119,3 +119,5 @@ a BSD-style license that can be found in the LICENSE file.
 External source code:
 * [dudect](https://github.com/oreparaz/dudect): public domain
 * [git-good-commit](https://github.com/tommarshall/git-good-commit): MIT License
+* [linenoise](https://github.com/antirez/linenoise): BSD-2-Clause
+* [natsort](https://github.com/sourcefrog/natsort)
