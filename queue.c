@@ -232,7 +232,10 @@ int natural_cmp(char *a, char *b) /* from sourcefrog */
     int ret = strnatcmp(a, b);
     return ret < 0;
 }
-list_ele_t *merge_sort(list_ele_t *start, int L, int R, int cmp)
+list_ele_t *merge_sort(list_ele_t *start,
+                       int L,
+                       int R,
+                       int (*cmp)(char *, char *))
 {
     if (R <= L + 1) {
         return start;
@@ -248,14 +251,8 @@ list_ele_t *merge_sort(list_ele_t *start, int L, int R, int cmp)
 
     left = merge_sort(left, L, M, cmp);
     right = merge_sort(right, M, R, cmp);
-    int (*compare)(char *, char *);
-    if (cmp == 0) {
-        compare = normal_cmp;
-    } else {
-        compare = natural_cmp;
-    }
     for (list_ele_t *merge = NULL; left || right;) {
-        if (!right || (left && compare(left->value, right->value))) {
+        if (!right || (left && cmp(left->value, right->value))) {
             if (!merge) {
                 start = merge = left;  // LL1;
             } else {
@@ -275,7 +272,7 @@ list_ele_t *merge_sort(list_ele_t *start, int L, int R, int cmp)
     }
     return start;
 }
-void q_sort(queue_t *q, int cmp)
+void q_sort(queue_t *q, int (*cmp)(char *, char *))
 {
     /* DONE: You need to write the code for this function */
     if (q == NULL || q->size == 0) {
@@ -288,4 +285,12 @@ void q_sort(queue_t *q, int cmp)
         q->tail = elem;
         elem = elem->next;
     }
+}
+void q_norm_sort(queue_t *q)
+{
+    q_sort(q, &normal_cmp);
+}
+void q_nat_sort(queue_t *q)
+{
+    q_sort(q, &natural_cmp);
 }

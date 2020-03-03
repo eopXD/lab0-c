@@ -96,6 +96,8 @@ void q_reverse(queue_t *q);
  * cmp = 0, do normal sort
  * cmp = 1, do natural sort
  */
-void q_sort(queue_t *q, int cmp);
+void q_sort(queue_t *q, int (*cmp)(char *, char *));
+void q_nat_sort(queue_t *q);
+void q_norm_sort(queue_t *q);
 
 #endif /* LAB0_QUEUE_H */

@@ -564,7 +564,7 @@ bool do_sort(int argc, char *argv[])
 
     set_noallocate_mode(true);
     if (exception_setup(true))
-        q_sort(q, 0);
+        q_norm_sort(q);
     exception_cancel();
     set_noallocate_mode(false);
 
@@ -602,7 +602,7 @@ bool do_nat_sort(int argc, char *argv[])
 
     set_noallocate_mode(true);
     if (exception_setup(true))
-        q_sort(q, 1);
+        q_nat_sort(q);
     exception_cancel();
     set_noallocate_mode(false);
 
